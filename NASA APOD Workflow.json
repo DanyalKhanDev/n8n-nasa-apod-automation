@@ -1,0 +1,191 @@
+{
+  "name": "NASA APOD Workflow",
+  "nodes": [
+    {
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "field": "weeks",
+              "triggerAtHour": 9
+            }
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1.4,
+      "position": [
+        0,
+        0
+      ],
+      "id": "f4c81ca5-edfe-464c-8815-e51f09bef79d",
+      "name": "Schedule Trigger"
+    },
+    {
+      "parameters": {
+        "url": "https://api.nasa.gov/planetary/apod",
+        "sendQuery": true,
+        "queryParameters": {
+          "parameters": [
+            {
+              "name": "api_key",
+              "value": "y2zyOk1Qnqcr9sacjOzDKS561uDoInVW5bChrT1Z"
+            },
+            {
+              "name": "date",
+              "value": "2026-10-10"
+            }
+          ]
+        },
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Accept",
+              "value": "application/json"
+            }
+          ]
+        },
+        "options": {
+          "redirect": {
+            "redirect": {
+              "followRedirects": false
+            }
+          }
+        }
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.5,
+      "position": [
+        224,
+        0
+      ],
+      "id": "9e3f8f2e-d6af-4966-a977-7abf1baa216a",
+      "name": "HTTP Request"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 3
+          },
+          "conditions": [
+            {
+              "id": "3c16ce9c-301b-4153-8e2a-4f3774852b61",
+              "leftValue": "={{ $json.media_type }}",
+              "rightValue": "image",
+              "operator": {
+                "type": "string",
+                "operation": "equals",
+                "name": "filter.operator.equals"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.3,
+      "position": [
+        448,
+        0
+      ],
+      "id": "d4609506-73b2-4b1f-80f0-4b805ea8b13f",
+      "name": "If"
+    },
+    {
+      "parameters": {
+        "resource": "request",
+        "operation": "send",
+        "binId": "1791719204556-4365809476003",
+        "binContent": "=NASA Astronomy Picture of the Day\n\nTitle: {{ $json.title }}\nDate: {{ $json.date }}\nType: {{ $json.media_type }}\nImage URL: {{ $json.url }}\nExplanation: {{ $json.explanation }}",
+        "requestOptions": {}
+      },
+      "type": "n8n-nodes-base.postBin",
+      "typeVersion": 1,
+      "position": [
+        672,
+        -96
+      ],
+      "id": "b9128eb5-e0f7-4d57-87a8-4bea65ce46d4",
+      "name": "Send a request"
+    },
+    {
+      "parameters": {
+        "resource": "request",
+        "operation": "send",
+        "binId": "1791719204556-4365809476003",
+        "binContent": "=NASA APOD returned non-image media.\n\nTitle: {{ $json.title }}\nDate: {{ $json.date }}\nType: {{ $json.media_type }}\nMedia URL: {{ $json.url }}",
+        "requestOptions": {}
+      },
+      "type": "n8n-nodes-base.postBin",
+      "typeVersion": 1,
+      "position": [
+        672,
+        96
+      ],
+      "id": "b82547e7-f17d-4d45-91c2-68c9c1121380",
+      "name": "Send a request1"
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Schedule Trigger": {
+      "main": [
+        [
+          {
+            "node": "HTTP Request",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "HTTP Request": {
+      "main": [
+        [
+          {
+            "node": "If",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "If": {
+      "main": [
+        [
+          {
+            "node": "Send a request",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Send a request1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate"
+  },
+  "versionId": "e2a2f588-5ea2-4273-b297-9348f20de572",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "2fed1028e654f5af28b31847474f5f44942645622c5ba1a03ba65ca590ac28d7"
+  },
+  "nodeGroups": [],
+  "id": "WOL7UVUO1UlxPZz4",
+  "tags": []
+}
